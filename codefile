@@ -1,0 +1,61 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef pair<int, int> pii; // To store pairs of (distance, city)
+class Graph {
+public:
+    unordered_map<int, vector<pii>> adjList;
+
+    void addEdge(int u, int v, int weight) {
+        adjList[u].push_back({v, weight});
+        adjList[v].push_back({u, weight}); // For undirected graph, add reverse as well
+    }
+
+    void dijkstra(int start) {
+        unordered_map<int, int> dist;
+        for (auto& pair : adjList) {
+            dist[pair.first] = 1e9;
+        }
+        dist[start] = 0;
+
+        priority_queue<pii, vector<pii>, greater<pii>> pq;
+        pq.push({0, start});
+
+        while (!pq.empty()) {
+            int currDist = pq.top().first;
+            int currCity = pq.top().second;
+            pq.pop();
+
+            if (currDist > dist[currCity]) continue;
+
+            for (auto& neighbor : adjList[currCity]) {
+                int nextCity = neighbor.first;
+                int edgeWeight = neighbor.second;
+
+                // If a shorter path is found to the neighboring city
+                if (dist[currCity] + edgeWeight < dist[nextCity]) {
+                    dist[nextCity] = dist[currCity] + edgeWeight;
+                    pq.push({dist[nextCity], nextCity});
+                }
+            }
+        }
+
+        cout << "Shortest distances from city " << start << " to other cities:\n";
+        for (auto& pair : dist) {
+            cout << "City " << pair.first << " : " << (pair.second == 1e9 ? "Unreachable" : to_string(pair.second)) << "\n";
+        }
+    }
+};
+
+int main() {
+    Graph g;
+
+    g.addEdge(1, 2, 4);
+    g.addEdge(1, 3, 2);
+    g.addEdge(2, 4, 3);
+    g.addEdge(3, 4, 1);
+    g.addEdge(3, 5, 5);
+    g.addEdge(4, 5, 2);
+    g.dijkstra(1);
+
+    return 0;
+}
